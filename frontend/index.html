@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高考志愿填报助手 · 山东</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+  * { font-family: 'Noto Sans SC', 'Inter', system-ui, sans-serif; }
+  .card { @apply bg-white rounded-xl shadow-sm border border-gray-100; }
+  .btn-primary { @apply bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 active:scale-95; }
+  .btn-secondary { @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-all; }
+  .tag-reach { @apply bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-medium; }
+  .tag-match { @apply bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-medium; }
+  .tag-safety { @apply bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium; }
+  .prob-bar { @apply h-2 rounded-full; }
+  .animate-in { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .tooltip-text { visibility: hidden; opacity: 0; transition: all 0.2s; }
+  .has-tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- ========== 顶部导航 ========== -->
+<nav class="bg-white border-b shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🎓</span>
+      <div>
+        <h1 class="text-lg font-bold text-gray-800">高考志愿填报助手</h1>
+        <p class="text-xs text-gray-400">山东省 · 3+3新高考 · 96个平行志愿</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="loadVolunteerTable()" class="btn-secondary text-sm">📋 我的志愿表 <span id="vol-count-badge" class="bg-blue-600 text-white rounded-full px-1.5 py-0.5 text-xs ml-1">0</span></button>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+  <!-- ========== 步骤指示器 ========== -->
+  <div class="flex items-center gap-2 mb-8 text-sm">
+    <div class="flex items-center gap-2" id="step-indicator-1">
+      <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</span>
+      <span class="text-gray-700 font-medium">输入成绩</span>
+    </div>
+    <span class="text-gray-300">→</span>
+    <div class="flex items-center gap-2 opacity-40" id="step-indicator-2">
+      <span class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">2</span>
+      <span class="text-gray-500">查看推荐</span>
+    </div>
+    <span class="text-gray-300">→</span>
+    <div class="flex items-center gap-2 opacity-40" id="step-indicator-3">
+      <span class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">3</span>
+      <span class="text-gray-500">编辑志愿表</span>
+    </div>
+  </div>
+
+  <!-- ========== Step 1: 成绩输入 ========== -->
+  <section id="step-input" class="card p-6 mb-6 animate-in">
+    <h2 class="text-xl font-bold mb-2">📝 输入你的高考成绩</h2>
+    <p class="text-gray-500 text-sm mb-6">系统将根据你的分数和选科，给出 冲/稳/保 三级推荐</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">高考总分</label>
+        <input type="number" id="score" min="0" max="750" placeholder="例: 580"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+               oninput="validateScore()">
+        <p class="text-xs text-gray-400 mt-1">满分750分（语数外+3门选考）</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">参考年份</label>
+        <select id="year" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+          <option value="2025">2025年</option>
+          <option value="2024">2024年</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">首选城市（可选）</label>
+        <select id="pref-city" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+          <option value="">不限</option>
+          <option value="济南">济南</option>
+          <option value="青岛">青岛</option>
+          <option value="烟台">烟台</option>
+          <option value="北京">北京</option>
+          <option value="上海">上海</option>
+          <option value="南京">南京</option>
+          <option value="杭州">杭州</option>
+          <option value="武汉">武汉</option>
+          <option value="成都">成都</option>
+          <option value="西安">西安</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">最低院校层次</label>
+        <select id="pref-level" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+          <option value="">不限</option>
+          <option value="985">985 院校</option>
+          <option value="211">211 及以上</option>
+          <option value="双一流">双一流及以上</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 选科 -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-2">选考科目（山东3+3，选3门）</label>
+      <div class="flex flex-wrap gap-2" id="subject-selector">
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium cursor-pointer transition"
+                data-subject="物理" onclick="toggleSubject(this)">物理</button>
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-600 font-medium cursor-pointer transition hover:border-gray-300"
+                data-subject="化学" onclick="toggleSubject(this)">化学</button>
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-600 font-medium cursor-pointer transition hover:border-gray-300"
+                data-subject="生物" onclick="toggleSubject(this)">生物</button>
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-600 font-medium cursor-pointer transition hover:border-gray-300"
+                data-subject="政治" onclick="toggleSubject(this)">政治</button>
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-600 font-medium cursor-pointer transition hover:border-gray-300"
+                data-subject="历史" onclick="toggleSubject(this)">历史</button>
+        <button class="subject-chip px-4 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-600 font-medium cursor-pointer transition hover:border-gray-300"
+                data-subject="地理" onclick="toggleSubject(this)">地理</button>
+      </div>
+      <p class="text-xs text-gray-400 mt-1">已选: <span id="selected-subjects-display" class="text-blue-600 font-medium">物理</span></p>
+    </div>
+
+    <button id="btn-analyze" onclick="analyze()" class="btn-primary text-lg px-8 py-3">
+      🔍 开始分析
+    </button>
+    <span id="analyze-status" class="ml-3 text-sm text-gray-500 hidden">分析中...</span>
+  </section>
+
+  <!-- ========== Step 2: 推荐结果 ========== -->
+  <section id="step-results" class="hidden">
+    <!-- 位次信息卡片 -->
+    <div id="rank-display" class="card p-5 mb-6 animate-in bg-gradient-to-r from-blue-50 to-indigo-50"></div>
+
+    <!-- 策略标签切换 -->
+    <div class="flex gap-3 mb-5" id="strategy-tabs">
+      <button onclick="showStrategy('reach')" class="strategy-tab px-5 py-2.5 rounded-xl font-medium transition-all bg-red-50 text-red-700 border-2 border-red-200 hover:bg-red-100">
+        🔴 冲一冲 <span id="count-reach" class="ml-1 opacity-60">0</span>
+        <span class="block text-xs opacity-50 font-normal">概率 10%-25%</span>
+      </button>
+      <button onclick="showStrategy('match')" class="strategy-tab px-5 py-2.5 rounded-xl font-medium transition-all bg-yellow-50 text-yellow-700 border-2 border-yellow-200 hover:bg-yellow-100">
+        🟡 稳一稳 <span id="count-match" class="ml-1 opacity-60">0</span>
+        <span class="block text-xs opacity-50 font-normal">概率 25%-65%</span>
+      </button>
+      <button onclick="showStrategy('safety')" class="strategy-tab px-5 py-2.5 rounded-xl font-medium transition-all bg-green-50 text-green-700 border-2 border-green-200 hover:bg-green-100">
+        🟢 保一保 <span id="count-safety" class="ml-1 opacity-60">0</span>
+        <span class="block text-xs opacity-50 font-normal">概率 65%+</span>
+      </button>
+      <div class="flex-1"></div>
+      <div class="text-xs text-gray-400 self-end pb-1">
+        ⚠️ 概率&lt;10%的选项已自动隐藏
+      </div>
+    </div>
+
+    <!-- 推荐列表 -->
+    <div id="recommend-list" class="space-y-3"></div>
+
+    <!-- 底部分析按钮 -->
+    <div class="mt-6 flex gap-3">
+      <button onclick="goToVolunteer()" class="btn-primary text-lg">
+        📋 管理志愿表 (<span id="my-vol-count">0</span>/96)
+      </button>
+    </div>
+  </section>
+
+  <!-- ========== Step 3: 志愿表编辑器 ========== -->
+  <section id="step-volunteer" class="hidden">
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold">📋 我的志愿表 <span class="text-sm font-normal text-gray-400">（最多96个）</span></h2>
+        <div class="flex gap-2">
+          <button onclick="analyzeVolunteer()" class="btn-secondary text-sm">📊 策略分析</button>
+          <button onclick="clearVolunteers()" class="btn-secondary text-sm text-red-600 hover:bg-red-50">🗑 清空</button>
+          <button onclick="saveVolunteers()" class="btn-primary text-sm">💾 保存</button>
+        </div>
+      </div>
+
+      <!-- 简易统计条 -->
+      <div class="flex gap-4 mb-4 text-sm" id="vol-stats"></div>
+
+      <!-- 志愿列表 -->
+      <div id="volunteer-table" class="max-h-[60vh] overflow-y-auto">
+        <p class="text-gray-400 text-center py-12">还没有添加志愿，去推荐列表点"添加"按钮吧 →</p>
+      </div>
+
+      <!-- 分析面板 -->
+      <div id="analysis-panel" class="hidden mt-6 border-t pt-4"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ===================== 全局状态 =====================
+const API = '';  // 同源部署，自动适配任何地址
+
+const state = {
+  score: null,
+  year: 2025,
+  subjects: ['物理'],
+  myRank: null,
+  recommendations: { reach: [], match: [], safety: [] },
+  activeStrategy: 'reach',
+  volunteers: [],  // [{...RecommendationItem, order: 1-96}]
+};
+
+// ===================== 选科交互 =====================
+function toggleSubject(btn) {
+  const subj = btn.dataset.subject;
+  if (state.subjects.includes(subj)) {
+    if (state.subjects.length > 1) {
+      state.subjects = state.subjects.filter(s => s !== subj);
+      btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
+      btn.classList.add('border-gray-200', 'bg-white', 'text-gray-600');
+    }
+  } else {
+    if (state.subjects.length < 3) {
+      state.subjects.push(subj);
+      btn.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+      btn.classList.remove('border-gray-200', 'bg-white', 'text-gray-600');
+    }
+  }
+  document.getElementById('selected-subjects-display').textContent = state.subjects.join('、');
+  // 确保至少选中1门
+  if (state.subjects.length === 0) {
+    state.subjects = ['物理'];
+    const first = document.querySelector('[data-subject="物理"]');
+    first.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+    first.classList.remove('border-gray-200', 'bg-white', 'text-gray-600');
+    document.getElementById('selected-subjects-display').textContent = '物理';
+  }
+}
+
+function validateScore() {
+  const el = document.getElementById('score');
+  let v = parseInt(el.value);
+  if (isNaN(v)) return;
+  if (v < 0) el.value = 0;
+  if (v > 750) el.value = 750;
+}
+
+// ===================== 核心：发起推荐 =====================
+async function analyze() {
+  const score = parseInt(document.getElementById('score').value);
+  if (!score || score < 100 || score > 750) {
+    alert('请输入有效的分数（100-750）');
+    return;
+  }
+
+  state.score = score;
+  state.year = parseInt(document.getElementById('year').value);
+  const prefCity = document.getElementById('pref-city').value;
+  const prefLevel = document.getElementById('pref-level').value;
+
+  document.getElementById('btn-analyze').disabled = true;
+  document.getElementById('analyze-status').classList.remove('hidden');
+
+  try {
+    const body = {
+      score: state.score,
+      subject_selection: state.subjects,
+      year: state.year,
+    };
+    if (prefCity) body.preferred_cities = [prefCity];
+    if (prefLevel) body.min_school_level = prefLevel;
+
+    const resp = await fetch(`${API}/api/recommend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || '请求失败，请检查后端是否启动');
+    }
+
+    const data = await resp.json();
+    state.myRank = data.my_rank;
+    state.recommendations = {
+      reach: data.reach || [],
+      match: data.match || [],
+      safety: data.safety || [],
+    };
+
+    updateStepIndicators(2);
+    renderRankDisplay(data);
+    renderRecommendList('reach');
+    updateStrategyCounts();
+    document.getElementById('step-results').classList.remove('hidden');
+    document.getElementById('step-results').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    alert('分析失败: ' + err.message);
+  } finally {
+    document.getElementById('btn-analyze').disabled = false;
+    document.getElementById('analyze-status').classList.add('hidden');
+  }
+}
+
+// ===================== 渲染函数 =====================
+
+function renderRankDisplay(data) {
+  const r = data.my_rank;
+  const zone = data.risk_zone || '';
+  const totalShown = (data.reach?.length||0) + (data.match?.length||0) + (data.safety?.length||0);
+  const filtered = (data.filtered_count||0) - totalShown;
+  document.getElementById('rank-display').innerHTML = `
+    <div class="flex flex-wrap items-center gap-6">
+      <div class="text-center">
+        <p class="text-3xl font-bold text-blue-700">${r.score}<span class="text-lg">分</span></p>
+        <p class="text-xs text-gray-500 mt-1">你的分数</p>
+      </div>
+      <div class="text-gray-300 text-2xl">→</div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-indigo-700">${r.cumulative_rank.toLocaleString()}<span class="text-lg">名</span></p>
+        <p class="text-xs text-gray-500 mt-1">全省排名（前 ${r.percentile || '--'}%）</p>
+      </div>
+      <div class="text-gray-300 text-2xl">·</div>
+      <div class="text-center">
+        <p class="text-xl font-semibold text-gray-600">${totalShown}<span class="text-sm"> 个推荐</span></p>
+        <p class="text-xs text-gray-400 mt-1">${filtered > 0 ? '隐藏了'+filtered+'个差距过大的选项' : '满足选科的专业+学校'}</p>
+      </div>
+      <div class="flex-1"></div>
+      <div class="bg-white rounded-lg px-4 py-2 border">
+        <p class="text-xs text-gray-500">📌 ${zone}</p>
+      </div>
+    </div>`;
+}
+
+function renderRecommendList(strategy) {
+  state.activeStrategy = strategy;
+  const list = state.recommendations[strategy] || [];
+  const container = document.getElementById('recommend-list');
+
+  // 更新策略标签样式
+  document.querySelectorAll('.strategy-tab').forEach(tab => {
+    const s = tab.textContent.includes('冲') ? 'reach' : tab.textContent.includes('稳') ? 'match' : 'safety';
+    if (s === strategy) {
+      tab.classList.add('ring-2', 'ring-offset-1');
+    } else {
+      tab.classList.remove('ring-2', 'ring-offset-1');
+    }
+  });
+
+  if (list.length === 0) {
+    container.innerHTML = '<p class="text-center text-gray-400 py-8">该级别没有匹配的志愿</p>';
+    return;
+  }
+
+  container.innerHTML = list.map((item, idx) => {
+    const probClass = item.probability >= 0.8 ? 'bg-green-500' : item.probability >= 0.5 ? 'bg-yellow-500' : 'bg-red-400';
+    const strategyTag = item.strategy === '冲' ? 'tag-reach' : item.strategy === '稳' ? 'tag-match' : 'tag-safety';
+    const subjOk = item.meets_subject_requirement;
+    const isInVolunteer = state.volunteers.some(v => v.admission_line_id === item.id);
+
+    return `
+    <div class="card p-4 hover:shadow-md transition-all animate-in ${isInVolunteer ? 'ring-2 ring-blue-300' : ''}">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="${strategyTag}">${item.strategy}</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">${item.school_level}</span>
+            <span class="text-xs text-gray-400">${item.school_province}·${item.school_city}</span>
+            ${!subjOk ? '<span class="text-xs text-orange-500">⚠ 选科不匹配</span>' : ''}
+            ${isInVolunteer ? '<span class="text-xs text-blue-500">✅ 已添加</span>' : ''}
+          </div>
+          <h3 class="font-semibold text-gray-800">${item.school_name} · ${item.major_name}</h3>
+          <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <span>选科要求: <strong>${item.subject_requirement}</strong></span>
+            <span>预测位次: <strong>${Math.round(item.predicted_rank).toLocaleString()}名</strong></span>
+            <span>招生: <strong>${item.quota}人</strong></span>
+            ${item.tuition ? `<span>学费: <strong>${item.tuition}/年</strong></span>` : ''}
+          </div>
+          <!-- 历年位次 -->
+          <div class="flex items-center gap-2 mt-2 text-xs text-gray-400">
+            <span>近3年位次:</span>
+            ${(item.min_rank_history || []).map((r, i) => `<span class="font-mono">${[2023,2024,2025][i]}年: ${r?.toLocaleString() || '--'}名</span>`).join(' · ')}
+          </div>
+        </div>
+        <div class="flex flex-col items-end gap-2 ml-4">
+          <div class="text-center">
+            <p class="text-2xl font-bold ${item.probability >= 0.8 ? 'text-green-600' : item.probability >= 0.5 ? 'text-yellow-600' : 'text-red-500'}">${(item.probability*100).toFixed(0)}%</p>
+            <p class="text-xs text-gray-400">录取概率</p>
+          </div>
+          <div class="w-24 bg-gray-200 rounded-full h-2">
+            <div class="prob-bar ${probClass} h-2 rounded-full" style="width:${(item.probability*100).toFixed(0)}%"></div>
+          </div>
+          <button onclick="addVolunteer(${item.id})"
+                  class="text-sm px-3 py-1.5 rounded-lg ${isInVolunteer ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'} transition"
+                  ${isInVolunteer ? 'disabled' : ''}>
+            ${isInVolunteer ? '已添加' : '+ 加入志愿表'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showStrategy(s) {
+  renderRecommendList(s);
+}
+
+function updateStrategyCounts() {
+  document.getElementById('count-reach').textContent = state.recommendations.reach.length;
+  document.getElementById('count-match').textContent = state.recommendations.match.length;
+  document.getElementById('count-safety').textContent = state.recommendations.safety.length;
+  document.getElementById('my-vol-count').textContent = state.volunteers.length;
+}
+
+function updateStepIndicators(activeStep) {
+  for (let i = 1; i <= 3; i++) {
+    const indicator = document.getElementById(`step-indicator-${i}`);
+    if (i <= activeStep) {
+      indicator.classList.remove('opacity-40');
+      const circle = indicator.querySelector('.w-8');
+      circle.classList.remove('bg-gray-300');
+      circle.classList.add(i <= activeStep ? 'bg-blue-600' : 'bg-gray-300');
+    }
+  }
+}
+
+// ===================== 志愿表管理 =====================
+
+function addVolunteer(id) {
+  if (state.volunteers.length >= 96) {
+    alert('已达到96个志愿上限！');
+    return;
+  }
+
+  // 从推荐列表中查找
+  let item = null;
+  for (const strategy of ['reach', 'match', 'safety']) {
+    item = state.recommendations[strategy].find(r => r.id === id);
+    if (item) break;
+  }
+  if (!item) return;
+
+  state.volunteers.push({ ...item, order: state.volunteers.length + 1 });
+  document.getElementById('my-vol-count').textContent = state.volunteers.length;
+  document.getElementById('vol-count-badge').textContent = state.volunteers.length;
+
+  // 刷新推荐列表（更新"已添加"状态）
+  renderRecommendList(state.activeStrategy);
+  renderVolunteerTable();
+}
+
+function renderVolunteerTable() {
+  const container = document.getElementById('volunteer-table');
+
+  if (state.volunteers.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 text-center py-12">还没有添加志愿，去推荐列表点"添加"按钮吧 →</p>';
+    document.getElementById('vol-stats').innerHTML = '';
+    return;
+  }
+
+  // 统计
+  const reach = state.volunteers.filter(v => v.strategy === '冲').length;
+  const match = state.volunteers.filter(v => v.strategy === '稳').length;
+  const safety = state.volunteers.filter(v => v.strategy === '保').length;
+
+  document.getElementById('vol-stats').innerHTML = `
+    <span class="tag-reach">冲 ${reach}个</span>
+    <span class="tag-match">稳 ${match}个</span>
+    <span class="tag-safety">保 ${safety}个</span>
+    <span class="text-gray-400">共 ${state.volunteers.length}/96 个</span>
+  `;
+
+  container.innerHTML = `
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-gray-500 border-b">
+          <th class="pb-2 font-medium">序号</th>
+          <th class="pb-2 font-medium">策略</th>
+          <th class="pb-2 font-medium">院校</th>
+          <th class="pb-2 font-medium">专业</th>
+          <th class="pb-2 font-medium">选科要求</th>
+          <th class="pb-2 font-medium">预测位次</th>
+          <th class="pb-2 font-medium">录取概率</th>
+          <th class="pb-2 font-medium">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.volunteers.map((v, idx) => {
+          const probClass = v.probability >= 0.8 ? 'text-green-600' : v.probability >= 0.5 ? 'text-yellow-600' : 'text-red-500';
+          const strategyTag = v.strategy === '冲' ? 'tag-reach' : v.strategy === '稳' ? 'tag-match' : 'tag-safety';
+          return `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2.5 font-mono">${idx + 1}</td>
+            <td class="py-2.5"><span class="${strategyTag}">${v.strategy}</span></td>
+            <td class="py-2.5 font-medium">${v.school_name}</td>
+            <td class="py-2.5">${v.major_name}</td>
+            <td class="py-2.5 text-gray-500">${v.subject_requirement}</td>
+            <td class="py-2.5 font-mono">${Math.round(v.predicted_rank).toLocaleString()}名</td>
+            <td class="py-2.5"><span class="${probClass} font-bold">${(v.probability*100).toFixed(0)}%</span></td>
+            <td class="py-2.5">
+              <button onclick="removeVolunteer(${idx})" class="text-red-500 hover:text-red-700 text-xs">移除</button>
+              ${idx > 0 ? `<button onclick="moveUp(${idx})" class="text-gray-400 hover:text-gray-600 text-xs ml-2">↑</button>` : ''}
+              ${idx < state.volunteers.length - 1 ? `<button onclick="moveDown(${idx})" class="text-gray-400 hover:text-gray-600 text-xs ml-1">↓</button>` : ''}
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function removeVolunteer(idx) {
+  state.volunteers.splice(idx, 1);
+  state.volunteers.forEach((v, i) => v.order = i + 1);
+  document.getElementById('my-vol-count').textContent = state.volunteers.length;
+  document.getElementById('vol-count-badge').textContent = state.volunteers.length;
+  renderRecommendList(state.activeStrategy);
+  renderVolunteerTable();
+}
+
+function moveUp(idx) {
+  if (idx === 0) return;
+  [state.volunteers[idx - 1], state.volunteers[idx]] = [state.volunteers[idx], state.volunteers[idx - 1]];
+  state.volunteers.forEach((v, i) => v.order = i + 1);
+  renderVolunteerTable();
+}
+
+function moveDown(idx) {
+  if (idx >= state.volunteers.length - 1) return;
+  [state.volunteers[idx], state.volunteers[idx + 1]] = [state.volunteers[idx + 1], state.volunteers[idx]];
+  state.volunteers.forEach((v, i) => v.order = i + 1);
+  renderVolunteerTable();
+}
+
+function clearVolunteers() {
+  if (!confirm('确定要清空志愿表吗？')) return;
+  state.volunteers = [];
+  document.getElementById('my-vol-count').textContent = '0';
+  document.getElementById('vol-count-badge').textContent = '0';
+  renderRecommendList(state.activeStrategy);
+  renderVolunteerTable();
+  document.getElementById('analysis-panel').classList.add('hidden');
+}
+
+// ===================== 保存/加载 =====================
+
+async function saveVolunteers() {
+  const body = {
+    user_identifier: 'default_user',
+    batch: '常规批第1次',
+    volunteers: state.volunteers.map(v => ({
+      admission_line_id: v.id,
+      school_name: v.school_name,
+      major_name: v.major_name,
+      strategy: v.strategy,
+      probability: v.probability,
+      order: v.order,
+    })),
+  };
+
+  try {
+    const resp = await fetch(`${API}/api/volunteer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    alert(`✅ 保存成功！共 ${data.count} 个志愿`);
+  } catch (err) {
+    alert('保存失败: ' + err.message);
+  }
+}
+
+async function loadVolunteerTable() {
+  try {
+    const resp = await fetch(`${API}/api/volunteer?user=default_user`);
+    const data = await resp.json();
+    if (data.volunteers && data.volunteers.length > 0) {
+      state.volunteers = data.volunteers.map(v => ({
+        id: v.admission_line_id,
+        school_name: v.school_name,
+        major_name: v.major_name,
+        strategy: v.strategy,
+        probability: v.probability,
+        order: v.order,
+      }));
+      document.getElementById('my-vol-count').textContent = state.volunteers.length;
+      document.getElementById('vol-count-badge').textContent = state.volunteers.length;
+      updateStepIndicators(3);
+      document.getElementById('step-volunteer').classList.remove('hidden');
+      renderVolunteerTable();
+      document.getElementById('step-volunteer').scrollIntoView({ behavior: 'smooth' });
+      alert(`📋 已加载 ${state.volunteers.length} 个志愿`);
+    } else {
+      alert('还没有保存过志愿表');
+    }
+  } catch (err) {
+    alert('加载失败: ' + err.message);
+  }
+}
+
+function goToVolunteer() {
+  if (state.volunteers.length === 0) {
+    alert('请先在推荐列表中添加志愿');
+    return;
+  }
+  updateStepIndicators(3);
+  document.getElementById('step-volunteer').classList.remove('hidden');
+  renderVolunteerTable();
+  document.getElementById('step-volunteer').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== 策略分析 =====================
+
+async function analyzeVolunteer() {
+  if (state.volunteers.length === 0) {
+    alert('志愿表为空');
+    return;
+  }
+  if (!state.myRank) {
+    alert('请先输入分数进行分析');
+    return;
+  }
+
+  const body = {
+    user_identifier: 'default_user',
+    batch: '常规批第1次',
+    volunteers: state.volunteers.map(v => ({
+      admission_line_id: v.id,
+      school_name: v.school_name,
+      major_name: v.major_name,
+      strategy: v.strategy,
+      probability: v.probability,
+      order: v.order,
+    })),
+  };
+
+  try {
+    const resp = await fetch(`${API}/api/analyze/${state.myRank.cumulative_rank}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    renderAnalysis(data);
+  } catch (err) {
+    alert('分析失败: ' + err.message);
+  }
+}
+
+function renderAnalysis(data) {
+  const a = data.analysis;
+  const s = data.simulation;
+
+  const reachPct = state.volunteers.length > 0 ? (a.count_reach / state.volunteers.length * 100).toFixed(0) : 0;
+  const matchPct = state.volunteers.length > 0 ? (a.count_match / state.volunteers.length * 100).toFixed(0) : 0;
+  const safetyPct = state.volunteers.length > 0 ? (a.count_safety / state.volunteers.length * 100).toFixed(0) : 0;
+
+  const riskColor = a.risk_level === '低' ? 'text-green-600' : a.risk_level === '中' ? 'text-yellow-600' : 'text-red-600';
+
+  document.getElementById('analysis-panel').classList.remove('hidden');
+  document.getElementById('analysis-panel').innerHTML = `
+    <h3 class="font-bold text-lg mb-3">📊 志愿表策略分析</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-3xl font-bold ${a.strategy_score >= 80 ? 'text-green-600' : a.strategy_score >= 60 ? 'text-yellow-600' : 'text-red-500'}">${a.strategy_score}<span class="text-lg">/100</span></p>
+        <p class="text-sm text-gray-500 mt-1">策略评分</p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-3xl font-bold ${riskColor}">${a.risk_level}</p>
+        <p class="text-sm text-gray-500 mt-1">风险等级（滑档概率: ${(a.slip_risk*100).toFixed(1)}%）</p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-3xl font-bold text-blue-600">${s ? (s.safety_score).toFixed(1) : '--'}<span class="text-lg">%</span></p>
+        <p class="text-sm text-gray-500 mt-1">蒙特卡洛安全指数</p>
+      </div>
+    </div>
+
+    <div class="mt-4 flex gap-2 text-sm">
+      <span class="tag-reach">冲: ${a.count_reach}个 (${reachPct}%)</span>
+      <span class="tag-match">稳: ${a.count_match}个 (${matchPct}%)</span>
+      <span class="tag-safety">保: ${a.count_safety}个 (${safetyPct}%)</span>
+    </div>
+
+    ${a.warnings.length > 0 ? `
+    <div class="mt-4 bg-red-50 border border-red-100 rounded-lg p-3">
+      <p class="text-sm font-medium text-red-700 mb-1">⚠️ 风险提示</p>
+      ${a.warnings.map(w => `<p class="text-sm text-red-600 ml-4">· ${w}</p>`).join('')}
+    </div>` : ''}
+
+    ${a.suggestions.length > 0 ? `
+    <div class="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3">
+      <p class="text-sm font-medium text-blue-700 mb-1">💡 优化建议</p>
+      ${a.suggestions.map(sg => `<p class="text-sm text-blue-600 ml-4">· ${sg}</p>`).join('')}
+    </div>` : ''}
+
+    ${s && s.admission_by_position ? `
+    <div class="mt-4">
+      <p class="text-sm font-medium text-gray-700 mb-2">📈 每个志愿的录取概率（蒙特卡洛模拟 10,000次）</p>
+      <div class="max-h-48 overflow-y-auto">
+        ${Object.entries(s.admission_by_position).map(([order, prob]) => {
+          const v = state.volunteers.find(vv => vv.order === parseInt(order));
+          const barColor = prob >= 0.8 ? 'bg-green-500' : prob >= 0.5 ? 'bg-yellow-500' : 'bg-red-400';
+          return `
+          <div class="flex items-center gap-3 mb-1.5 text-xs">
+            <span class="w-8 text-right font-mono text-gray-500">#${order}</span>
+            <span class="w-28 truncate text-gray-600">${v ? v.school_name : '--'}</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+              <div class="h-1.5 rounded-full ${barColor}" style="width:${(prob*100).toFixed(0)}%"></div>
+            </div>
+            <span class="w-10 text-right font-mono font-bold">${(prob*100).toFixed(0)}%</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('analysis-panel').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
