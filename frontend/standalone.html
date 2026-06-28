@@ -47,7 +47,8 @@
 </div>
 
 <!-- 选专业顾问板块 -->
-<section id="advisor-section" class="card p-6 mb-6 animate-in bg-gradient-to-b from-blue-50/50 to-white">
+<section id="advisor-section">
+<div class="advisor-full"> class="card p-6 mb-6 animate-in bg-gradient-to-b from-blue-50/50 to-white">
   <div class="flex items-start justify-between mb-2">
     <div>
       <h2 class="text-xl font-bold">🤔 选专业之前，先想清楚：你更想要什么样的未来？</h2>
@@ -117,7 +118,13 @@
     <div id="goal-conflict-warning" class="hidden mt-3 bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-700"></div>
   </div>
 
-  <div class="mt-4 text-center">
+  </div>
+<div class="advisor-collapsed hidden text-center py-3">
+<span class="text-sm text-gray-500">🎯 已选择人生目标作为参考 — </span><a href="#" onclick="showAdvisorAgain();return false;" class="text-sm text-blue-500 hover:text-blue-700 font-medium">重新选择 ↑</a>
+</div>
+</section>
+
+<div class="mt-4 text-center">
     <a href="#" onclick="scrollToInput();return false;" class="text-sm text-gray-400 hover:text-blue-500">直接开始填志愿，我已有明确方向 →</a>
   </div>
 </section>
@@ -439,8 +446,16 @@ function applyGoalRecommendation() {
 }
 
 function scrollToInput() {
-  document.getElementById('advisor-section').classList.add('hidden');
+  var sec = document.getElementById('advisor-section');
+  sec.querySelector('.advisor-full').classList.add('hidden');
+  sec.querySelector('.advisor-collapsed').classList.remove('hidden');
   document.getElementById('step-input').scrollIntoView({behavior:'smooth'});
+}
+function showAdvisorAgain() {
+  var sec = document.getElementById('advisor-section');
+  sec.querySelector('.advisor-full').classList.remove('hidden');
+  sec.querySelector('.advisor-collapsed').classList.add('hidden');
+  sec.scrollIntoView({behavior:'smooth'});
 }
 
 // ==================== 位次换算 ====================
