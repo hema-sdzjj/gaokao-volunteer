@@ -281,6 +281,7 @@
 
 <script>
 // ==================== 嵌入数据 ====================
+const EXIT_STRATEGY = {"计算机科学与技术": {"cross_major": ["软件工程", "人工智能", "数据科学", "电子工程"], "second_degree": ["金融科技", "管理信息系统"], "note": "转行最容易的专业之一，几乎所有理工科和部分商科都可以跨"}, "软件工程": {"cross_major": ["计算机科学", "人工智能", "信息安全"], "second_degree": ["产品设计", "数字媒体"], "note": "和计算机类似，转行面广"}, "通信工程": {"cross_major": ["电子工程", "计算机科学", "自动化"], "second_degree": ["物联网工程"], "note": "可转电子/计算机方向，硬件转软件比较常见"}, "临床医学": {"cross_major": ["基础医学", "公共卫生", "药学"], "second_degree": ["医院管理"], "note": "转专业较难，医学培养体系封闭。不喜欢临床可考虑医药企业/医院管理"}, "口腔医学": {"cross_major": ["临床医学（较难）"], "second_degree": ["医疗管理"], "note": "口腔比临床灵活，可开诊所创业"}, "法学": {"cross_major": ["公共管理", "政治学", "社会学"], "second_degree": ["会计学", "金融学"], "note": "法考是关键，考不过也可以走企业法务/合规方向"}, "经济学": {"cross_major": ["金融学", "统计学", "工商管理"], "second_degree": ["数据科学"], "note": "万金油专业，考研可转金融/管理/统计多个方向"}, "会计学": {"cross_major": ["财务管理", "审计学", "金融学"], "second_degree": ["法学（税法方向）"], "note": "考CPA是核心，转金融/税务都可以"}, "机械工程": {"cross_major": ["车辆工程", "自动化", "工业设计"], "second_degree": ["工商管理"], "note": "传统工科，可转智能制造/机器人方向提升"}, "车辆工程": {"cross_major": ["机械工程", "自动化", "能源动力"], "second_degree": ["工业设计"], "note": "新能源车风口，转自动驾驶/电池方向有前景"}, "土木工程": {"cross_major": ["工程管理", "建筑学", "城市规划"], "second_degree": ["工程造价"], "note": "⚠️ 行业下行，建议尽早考虑跨考/转行"}, "电气工程及其自动化": {"cross_major": ["自动化", "能源动力", "电子工程"], "second_degree": ["计算机科学"], "note": "国网是主出路，也可转新能源/储能方向"}, "自动化": {"cross_major": ["计算机科学", "电子工程", "机械工程"], "second_degree": ["人工智能"], "note": "交叉性强，转行面最广的工科之一"}, "英语": {"cross_major": ["翻译", "国际关系", "新闻传播"], "second_degree": ["法学", "国际贸易"], "note": "⚠️ 建议必须叠加第二技能，纯英语竞争力有限"}, "数学与应用数学": {"cross_major": ["统计学", "计算机科学", "金融工程", "数据科学"], "second_degree": ["经济学"], "note": "转行万能跳板，数学底子好什么都能转"}, "社会工作": {"cross_major": ["社会学", "公共管理", "心理学"], "second_degree": ["法学"], "note": "考公/考编有专门通道，也可走公益行业"}, "信息管理与信息系统": {"cross_major": ["计算机科学", "工商管理", "数据科学"], "second_degree": ["电子商务"], "note": "交叉学科，可转IT产品经理或数据分析"}};
 const MAJOR_ONELINERS = {"计算机科学与技术": "每天写代码、调bug、学新技术，大部分时间对着屏幕", "软件工程": "和计算机类似，但更偏工程化开发，团队协作多", "通信工程": "研究信号传输，从5G到WiFi，数学要求高", "临床医学": "背不完的书+值不完的班，但救死扶伤的成就感无可替代", "口腔医学": "动手操作多，不需要值大夜班，市场化程度高", "法学": "背法条+写文书+辩论，法考是必须翻过的大山", "经济学": "分析数据+理解市场，很多时间在看报告和做模型", "会计学": "做账+审计+报税，细致活，CPA是分水岭", "机械工程": "设计+制造+画图，传统工科的基石", "车辆工程": "研究汽车，新能源和自动驾驶是当下热点", "土木工程": "下工地+画图纸+做预算，风吹日晒是常态", "电气工程及其自动化": "和电打交道，强电（电网）稳定，弱电（电子）灵活", "自动化": "让机器自己干活，控制理论+编程+硬件都要会", "英语": "学语言+文学+翻译，不像十年前那么好找工作了", "数学与应用数学": "证明+计算+建模，万物皆可数学，转行万能跳板", "社会工作": "帮弱势群体解决问题，写个案+跑社区，钱少但有意义", "信息管理与信息系统": "管IT系统+分析数据，介于计算机和管理的交叉地带"};
 const TREND_DATA = {"计算机科学与技术": {"trend_4yr": "↗ 持续增长", "outlook_2030": "需求+25%（AI/数字化推动）", "saturation": "中高（供给大增，顶尖人才稀缺）", "salary_growth": "高", "ai_resilience": "中"}, "软件工程": {"trend_4yr": "↗ 增长", "outlook_2030": "需求+20%", "saturation": "中高", "salary_growth": "中高", "ai_resilience": "中"}, "通信工程": {"trend_4yr": "→ 平稳", "outlook_2030": "需求+5%（5G/6G成熟后增速放缓）", "saturation": "中", "salary_growth": "中", "ai_resilience": "高"}, "临床医学": {"trend_4yr": "↗ 稳定增长", "outlook_2030": "需求+20%（老龄化+医疗资源扩张）", "saturation": "低（培养周期长，供给受限）", "salary_growth": "中（规培后跳升）", "ai_resilience": "高"}, "口腔医学": {"trend_4yr": "↗ 快速增长", "outlook_2030": "需求+35%（口腔健康意识提升+民营扩张）", "saturation": "低", "salary_growth": "高", "ai_resilience": "高"}, "法学": {"trend_4yr": "→ 平稳偏降", "outlook_2030": "传统法学需求持平，合规/数据法增长", "saturation": "高（毕业生供过于求）", "salary_growth": "两极分化", "ai_resilience": "中低"}, "经济学": {"trend_4yr": "→ 平稳", "outlook_2030": "需求+8%（数据分析方向增长）", "saturation": "中高", "salary_growth": "中", "ai_resilience": "中"}, "会计学": {"trend_4yr": "↘ 下降", "outlook_2030": "基础岗位-20%（AI替代），管理会计+15%", "saturation": "极高", "salary_growth": "低（CPA持证者除外）", "ai_resilience": "低"}, "机械工程": {"trend_4yr": "→ 平稳", "outlook_2030": "传统机械持平，智能制造+15%", "saturation": "中", "salary_growth": "中", "ai_resilience": "中高"}, "车辆工程": {"trend_4yr": "↗ 强劲增长", "outlook_2030": "需求+40%（新能源+自动驾驶双驱动）", "saturation": "低", "salary_growth": "高", "ai_resilience": "高"}, "土木工程": {"trend_4yr": "↘ 持续下行", "outlook_2030": "需求-20%（基建放缓+房地产收缩）", "saturation": "高", "salary_growth": "低", "ai_resilience": "高"}, "电气工程及其自动化": {"trend_4yr": "↗ 增长", "outlook_2030": "需求+18%（新能源电力+储能）", "saturation": "中", "salary_growth": "中高", "ai_resilience": "高"}, "自动化": {"trend_4yr": "↗ 增长", "outlook_2030": "需求+20%（智能制造+机器人）", "saturation": "中", "salary_growth": "中高", "ai_resilience": "中高"}, "英语": {"trend_4yr": "↘ 明显下降", "outlook_2030": "传统翻译/教学-30%，复合型人才有出路", "saturation": "极高", "salary_growth": "低", "ai_resilience": "极低"}, "数学与应用数学": {"trend_4yr": "↗ 强劲增长", "outlook_2030": "需求+30%（AI/大数据/量化金融底层驱动）", "saturation": "低", "salary_growth": "高", "ai_resilience": "极高"}, "社会工作": {"trend_4yr": "→ 平稳", "outlook_2030": "需求+10%（社会治理重视度提升）", "saturation": "低", "salary_growth": "低", "ai_resilience": "高"}, "信息管理与信息系统": {"trend_4yr": "↗ 增长", "outlook_2030": "需求+15%（企业数字化转型）", "saturation": "中", "salary_growth": "中高", "ai_resilience": "中"}};
 const EMPLOYMENT = {"计算机科学与技术": {"salary_start": 12000, "salary_5yr": 22000, "salary_10yr": 40000, "salary_trend": "↗ 年均+15%", "demand_12m": 85000, "demand_trend": "↗ +12%", "ai_risk": "🟡 中等（低端岗位减少，高端需求增加）", "industries": {"互联网/IT": 45, "金融科技": 18, "制造业": 12, "政府/事业单位": 8, "教育/科研": 7}, "cities": {"北京": 22, "上海": 18, "深圳": 15, "杭州": 12, "成都": 8}, "employers": "华为、腾讯、阿里、字节跳动、美团、银行IT部门", "note": "竞争激烈，头部院校与普通院校差距大。建议在校积累项目经验和实习。"}, "软件工程": {"salary_start": 11000, "salary_5yr": 20000, "salary_10yr": 38000, "salary_trend": "↗ 年均+13%", "demand_12m": 72000, "demand_trend": "↗ +10%", "ai_risk": "🟡 中等（常规开发受AI影响，架构设计仍稀缺）", "industries": {"互联网/IT": 50, "金融科技": 15, "制造业": 10, "外包服务": 12, "政府/事业单位": 5}, "cities": {"北京": 20, "上海": 17, "深圳": 16, "杭州": 14, "成都": 10}, "employers": "腾讯、阿里、字节、百度、网易、各行业IT部门", "note": "与实践结合紧密，实习经历对就业影响大。"}, "通信工程": {"salary_start": 9000, "salary_5yr": 17000, "salary_10yr": 28000, "salary_trend": "→ 平稳+5%", "demand_12m": 35000, "demand_trend": "→ +3%", "ai_risk": "🟢 低（硬件+通信协议难以被AI替代）", "industries": {"通信设备": 35, "运营商": 25, "互联网": 15, "军工/航天": 10, "电力": 8}, "cities": {"深圳": 20, "北京": 18, "上海": 15, "南京": 10, "西安": 8}, "employers": "华为、中兴、中国移动、电信、联通、大唐电信", "note": "5G/6G持续演进，通信+AI融合是新方向。"}, "临床医学": {"salary_start": 6000, "salary_5yr": 12000, "salary_10yr": 25000, "salary_trend": "↗ 年均+10%（规培后跳升）", "demand_12m": 60000, "demand_trend": "↗ +15%", "ai_risk": "🟢 低（诊断辅助但决策仍需医生）", "industries": {"三甲医院": 40, "二甲/社区医院": 30, "民营医院": 15, "医药企业": 8, "科研机构": 5}, "cities": {"北京": 15, "上海": 12, "广州": 10, "省会城市": 40, "地级市": 20}, "employers": "各省市三甲医院、华西/协和/301等顶级医院、药企医学部", "note": "培养周期长(5年本科+3年规培)，但职业稳定性和社会地位高。学历要求持续提升。"}, "口腔医学": {"salary_start": 8000, "salary_5yr": 18000, "salary_10yr": 35000, "salary_trend": "↗ 年均+18%", "demand_12m": 28000, "demand_trend": "↗ +20%", "ai_risk": "🟢 低（手术操作依赖人工）", "industries": {"口腔专科医院": 35, "综合医院口腔科": 20, "民营口腔诊所": 35, "口腔器械公司": 5}, "cities": {"一线城市": 35, "新一线": 30, "其他": 30}, "employers": "北大口腔、华西口腔、通策医疗、瑞尔齿科、泰康拜博", "note": "市场化程度高，民营诊所收入上限远超公立。近年持续热门。"}, "法学": {"salary_start": 5500, "salary_5yr": 12000, "salary_10yr": 25000, "salary_trend": "→ 平稳（顶尖律所涨幅大，普通岗位一般）", "demand_12m": 45000, "demand_trend": "→ +2%", "ai_risk": "🟡 中等（法律检索和文书起草受AI影响）", "industries": {"律所": 30, "法院/检察院": 20, "企业法务": 25, "政府法制办": 10, "金融机构合规": 10}, "cities": {"北京": 25, "上海": 20, "深圳": 12, "广州": 10, "省会": 25}, "employers": "金杜/中伦/君合等红圈所、各级法院检察院、大型企业法务部", "note": "两极分化严重：五院四系毕业生与普通院校差距极大。建议考取法律职业资格证。"}, "经济学": {"salary_start": 7000, "salary_5yr": 15000, "salary_10yr": 28000, "salary_trend": "→ 平稳+6%", "demand_12m": 38000, "demand_trend": "→ +4%", "ai_risk": "🟡 中等（数据分析部分可被AI替代）", "industries": {"银行/证券/保险": 35, "咨询公司": 15, "政府部门": 15, "互联网": 12, "研究机构": 8}, "cities": {"北京": 30, "上海": 25, "深圳": 15, "广州": 10, "杭州": 8}, "employers": "工农中建、券商研究所、麦肯锡/BCG、国家统计局等", "note": "宽口径专业，就业面广但需要叠加技能（数据分析、编程、CPA等）。"}, "会计学": {"salary_start": 5500, "salary_5yr": 12000, "salary_10yr": 22000, "salary_trend": "→ 平稳（CPA持证者收入翻倍）", "demand_12m": 55000, "demand_trend": "→ +1%", "ai_risk": "🔴 较高（基础记账和审计被AI自动化取代）", "industries": {"会计师事务所": 30, "企业财务": 35, "银行": 15, "政府审计": 10, "税务": 8}, "cities": {"北京": 20, "上海": 18, "深圳": 12, "广州": 10, "各省会": 30}, "employers": "四大(普华永道/德勤/安永/毕马威)、八大内资所、各行业财务部", "note": "AI冲击较大，建议向管理会计、财务分析、税务筹划方向转型。CPA仍是核心壁垒。"}, "机械工程": {"salary_start": 6500, "salary_5yr": 12000, "salary_10yr": 20000, "salary_trend": "→ 平稳+3%", "demand_12m": 50000, "demand_trend": "→ +2%", "ai_risk": "🟡 中等（智能制造需要新技能）", "industries": {"汽车制造": 25, "装备制造": 20, "航空航天": 12, "电子制造": 15, "能源": 10}, "cities": {"上海": 15, "深圳": 12, "苏州": 10, "重庆": 10, "长春": 8}, "employers": "上汽、一汽、比亚迪、三一重工、中航工业、西门子", "note": "传统工科，建议向智能制造、机器人、新能源汽车方向延伸。"}, "车辆工程": {"salary_start": 8000, "salary_5yr": 16000, "salary_10yr": 28000, "salary_trend": "↗ 年均+12%（新能源拉动）", "demand_12m": 30000, "demand_trend": "↗ +25%", "ai_risk": "🟢 低（车辆硬件+系统集成）", "industries": {"新能源汽车": 40, "传统车企": 20, "自动驾驶": 15, "零部件": 15, "汽车电子": 8}, "cities": {"上海": 18, "深圳": 15, "北京": 12, "合肥": 10, "广州": 10}, "employers": "比亚迪、特斯拉、蔚来、理想、小鹏、华为车BU", "note": "新能源汽车爆发式增长，人才缺口大。自动驾驶方向前景好。"}, "土木工程": {"salary_start": 5500, "salary_5yr": 10000, "salary_10yr": 18000, "salary_trend": "↘ 下降-5%（基建放缓、房地产下行）", "demand_12m": 25000, "demand_trend": "↘ -15%", "ai_risk": "🟢 低（现场施工管理难替代）", "industries": {"建筑施工": 35, "设计院": 20, "房地产": 15, "监理": 12, "政府建设": 10}, "cities": {"全国分散": 60, "一线城市": 15, "新一线": 20}, "employers": "中建、中铁、中交、万科、碧桂园、各省建工集团", "note": "⚠️ 行业下行期，就业压力大。建议向智能建造、BIM、绿色建筑方向转型。"}, "电气工程及其自动化": {"salary_start": 7500, "salary_5yr": 14000, "salary_10yr": 22000, "salary_trend": "↗ 年均+8%（新能源电力拉动）", "demand_12m": 40000, "demand_trend": "↗ +10%", "ai_risk": "🟢 低（电力系统核心不可替代）", "industries": {"国家电网/南方电网": 35, "发电集团": 20, "新能源": 18, "电气设备制造": 15, "轨道交通": 8}, "cities": {"各省会电力公司": 50, "北京": 10, "上海": 8, "深圳": 5, "新能源基地": 15}, "employers": "国网、南网、华能/华电/国电投、宁德时代、施耐德、ABB", "note": "国网是主要去向，工作稳定待遇好。新能源储能方向是新增长点。"}, "自动化": {"salary_start": 8000, "salary_5yr": 15000, "salary_10yr": 25000, "salary_trend": "↗ 年均+10%", "demand_12m": 38000, "demand_trend": "↗ +12%", "ai_risk": "🟡 中等（传统控制受AI影响，智能控制需求增加）", "industries": {"智能制造": 30, "汽车电子": 18, "机器人": 15, "能源": 12, "航空航天": 10}, "cities": {"深圳": 18, "上海": 15, "苏州": 12, "北京": 10, "杭州": 8}, "employers": "汇川技术、西门子、ABB、大疆、比亚迪、各智能制造企业", "note": "智能制造+工业4.0大趋势下前景好。建议学习Python/ROS/机器视觉。"}, "英语": {"salary_start": 5000, "salary_5yr": 10000, "salary_10yr": 18000, "salary_trend": "↘ 下降（AI翻译冲击大）", "demand_12m": 30000, "demand_trend": "↘ -10%", "ai_risk": "🔴 高（AI翻译和写作工具冲击显著）", "industries": {"教育培训": 35, "外贸": 20, "翻译": 12, "跨境电商": 15, "外企": 10}, "cities": {"北京": 18, "上海": 18, "深圳": 12, "广州": 10, "其他": 35}, "employers": "新东方、好未来、传音控股、阿里巴巴国际站、各外企", "note": "⚠️ AI冲击最大的专业之一。建议叠加其他技能（法律/商务/技术写作）。"}, "数学与应用数学": {"salary_start": 7500, "salary_5yr": 18000, "salary_10yr": 35000, "salary_trend": "↗ 年均+15%（AI/大数据/量化金融拉动）", "demand_12m": 32000, "demand_trend": "↗ +18%", "ai_risk": "🟢 低（AI底层就是数学，需求反而增加）", "industries": {"IT/互联网": 30, "金融量化": 20, "教育": 15, "科研": 12, "数据分析": 15}, "cities": {"北京": 22, "上海": 20, "深圳": 15, "杭州": 10, "其他": 25}, "employers": "量化私募(九坤/幻方)、互联网大厂AI Lab、各大银行风控部", "note": "AI时代受益专业。建议掌握编程(Python/R)转数据科学/量化方向。"}, "社会工作": {"salary_start": 4000, "salary_5yr": 7000, "salary_10yr": 12000, "salary_trend": "→ 平稳+3%", "demand_12m": 8000, "demand_trend": "→ +5%", "ai_risk": "🟢 低（人际服务难以替代）", "industries": {"民政/社区": 40, "社工机构": 30, "NGO/基金会": 12, "医疗社工": 8, "学校社工": 5}, "cities": {"北京": 12, "上海": 12, "广州": 10, "深圳": 10, "各省会": 40}, "employers": "各级民政局、恩派/壹基金等公益组织、社区卫生中心", "note": "薪资天花板低，但考公/考编有专门通道。社会价值感强。"}, "信息管理与信息系统": {"salary_start": 8000, "salary_5yr": 16000, "salary_10yr": 28000, "salary_trend": "↗ 年均+10%", "demand_12m": 25000, "demand_trend": "↗ +8%", "ai_risk": "🟡 中等", "industries": {"IT/互联网": 35, "咨询": 18, "金融": 15, "制造": 12, "政府": 10}, "cities": {"北京": 20, "上海": 18, "深圳": 15, "杭州": 10, "成都": 8}, "employers": "SAP/用友/金蝶等ERP厂商、互联网产品部门、四大咨询", "note": "交叉学科(管理+IT)，适合做产品经理、ERP顾问、数据分析师。"}};
@@ -318,6 +319,95 @@ const state = {
   score: null, year: 2025, subjects: ['物理'], preferredMajors: [],
   myRank: null, recs: { reach: [], match: [], safety: [] },
   activeTab: 'reach', volunteers: []
+};
+
+
+let parentMode = false;
+let parentPrefs = [];
+
+function toggleParentMode() {
+  parentMode = document.getElementById('parent-mode-toggle').checked;
+  var panel = document.getElementById('parent-prefs');
+  var result = document.getElementById('parent-compare-result');
+  if (parentMode) {
+    panel.classList.remove('hidden');
+    if (!document.getElementById('parent-major-selector').hasChildNodes()) initParentPrefs();
+  } else {
+    panel.classList.add('hidden');
+    result.classList.add('hidden');
+  }
+}
+
+function initParentPrefs() {
+  var cats = [
+    {key:'计算机类',label:'💻 计算机类'},
+    {key:'电子信息类',label:'📡 电子信息类'},
+    {key:'医学类',label:'🩺 医学类'},
+    {key:'法学类',label:'⚖️ 法学类'},
+    {key:'经管类',label:'💰 经管类'},
+    {key:'机械电气类',label:'🔧 机械电气类'},
+    {key:'师范语言类',label:'📚 师范语言类'},
+    {key:'土木建筑类',label:'🏗 土木建筑类'},
+  ];
+  var sel = document.getElementById('parent-major-selector');
+  cats.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.className = 'subject-chip';
+    btn.textContent = c.label; btn.dataset.cat = c.key;
+    btn.onclick = function(){
+      if (parentPrefs.includes(c.key)) {
+        parentPrefs = parentPrefs.filter(function(x){return x!==c.key;});
+        btn.classList.remove('active');
+        btn.style.borderColor = '#e5e7eb'; btn.style.background = '#fff'; btn.style.color = '#6b7280';
+      } else {
+        parentPrefs.push(c.key);
+        btn.classList.add('active');
+        btn.style.borderColor = '#9333ea'; btn.style.background = '#faf5ff'; btn.style.color = '#9333ea';
+      }
+      updateParentDisplay();
+      updateCompareResult();
+    };
+    sel.appendChild(btn);
+  });
+}
+
+function updateParentDisplay() {
+  document.getElementById('parent-pref-display').textContent = parentPrefs.length ? parentPrefs.join('、') : '未选择';
+}
+
+function updateCompareResult() {
+  var result = document.getElementById('parent-compare-result');
+  if (!parentPrefs.length && !state.preferredMajors.length) { result.classList.add('hidden'); return; }
+  result.classList.remove('hidden');
+  var student = state.preferredMajors || [];
+  var intersection = student.filter(function(x){return parentPrefs.includes(x);});
+  var studentOnly = student.filter(function(x){return !parentPrefs.includes(x);});
+  var parentOnly = parentPrefs.filter(function(x){return !student.includes(x);});
+
+  var html = '';
+  if (intersection.length > 0) {
+    html += '<p class="text-green-700">✅ 共同偏好：<strong>'+intersection.join('、')+'</strong> — 优先考虑这些方向！</p>';
+  }
+  if (studentOnly.length > 0) {
+    html += '<p class="text-blue-600 mt-1">🙋 学生偏好（家长未选）：<strong>'+studentOnly.join('、')+'</strong> — 建议沟通</p>';
+  }
+  if (parentOnly.length > 0) {
+    html += '<p class="text-purple-600 mt-1">🧑 家长偏好（学生未选）：<strong>'+parentOnly.join('、')+'</strong> — 建议沟通</p>';
+  }
+  if (intersection.length === 0 && (studentOnly.length>0 || parentOnly.length>0)) {
+    html += '<p class="text-red-600 mt-1">⚠️ 家长和学生没有共同偏好，建议坐下来好好聊聊各自的想法</p>';
+  }
+  if (!student.length && !parentPrefs.length) {
+    html += '<p class="text-gray-500">双方都还没有选择偏好</p>';
+  }
+  document.getElementById('parent-compare-content').innerHTML = html;
+}
+
+// 在学生选标签时也触发对比更新
+var origUpdateMajorPref = updateMajorPrefDisplay;
+updateMajorPrefDisplay = function() {
+  origUpdateMajorPref();
+  if (parentMode) updateCompareResult();
 };
 
 // ==================== 选科UI ====================
@@ -494,6 +584,15 @@ function showAdvisorAgain() {
   sec.querySelector('.advisor-full').classList.remove('hidden');
   sec.querySelector('.advisor-collapsed').classList.add('hidden');
   sec.scrollIntoView({behavior:'smooth'});
+}
+
+
+function getSchoolAdjustedSalary(schoolName, baseSalary) {
+  var level = (schoolMap[schoolName]||{}).level;
+  if (level === '985') return Math.round(baseSalary * 1.25);
+  if (level === '211') return Math.round(baseSalary * 1.12);
+  if (level === '双一流') return Math.round(baseSalary * 1.05);
+  return Math.round(baseSalary * 0.90); // 普通院校
 }
 
 // ==================== 位次换算 ====================
@@ -1012,6 +1111,7 @@ function showTab(tab) {
           <div class="mt-2 bg-gray-50 rounded-lg p-2 text-xs">
             <div class="flex flex-wrap gap-3">
               <span>💰 应届起薪: <strong>¥${(item.employment.salary_start/1000).toFixed(0)}K</strong></span>
+              <span class="text-xs text-gray-400">(该校修正: <strong>¥${(getSchoolAdjustedSalary(item.school_name,item.employment.salary_start)/1000).toFixed(0)}K</strong>)</span>
               <span>四年趋势: <strong>${(function(){var t=TREND_DATA[item.major_name];return t?t.trend_4yr:item.employment.demand_trend;})()}</strong></span>
               <span>饱和: <strong>${(function(){var t=TREND_DATA[item.major_name];return t?t.saturation:'-';})()}</strong></span>
               <span>AI抵抗力: <strong>${(function(){var t=TREND_DATA[item.major_name];return t?t.ai_resilience:'-';})()}</strong></span>${(function(){var t=TREND_DATA[item.major_name];if(t&&(t.saturation==='极高'||t.ai_resilience==='极低'||(t.trend_4yr.indexOf('下行')>=0||t.trend_4yr.indexOf('下降')>=0)))return'<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-bold animate-pulse">⚠️ 该专业就业市场正在萎缩，请谨慎考虑</span>';return'';})()}
@@ -1024,6 +1124,7 @@ function showTab(tab) {
               <p>🏭 典型雇主: ${item.employment.employers}</p>
               <p class="text-gray-500 mt-1">💬 ${item.employment.note}</p>
               <p class="text-gray-400 mt-1">📊 薪资趋势: ${item.employment.salary_trend}</p>
+            ${(function(){var es=EXIT_STRATEGY[item.major_name];if(!es)return'';return'<div class="mt-2 bg-purple-50 rounded-lg p-2 text-xs"><p class="font-medium text-purple-800">🔄 如果不喜欢这个专业怎么办</p><p class="text-gray-700 mt-1">📖 考研可跨: '+es.cross_major.join(' · ')+'</p><p class="text-gray-700">🎓 第二学位: '+es.second_degree.join(' · ')+'</p><p class="text-gray-500 mt-1">💬 '+es.note+'</p><p class="text-gray-400 mt-1">🔑 本校转专业难度: <strong>'+(SCHOOL_DETAIL[item.school_name]?SCHOOL_DETAIL[item.school_name].major_change:'-')+'</strong></p></div>';})()}
             ${(function(){var t=TREND_DATA[item.major_name];if(!t)return '';return '<div class="mt-2 bg-gradient-to-r from-amber-50 to-blue-50 rounded-lg p-2 text-xs"><p class="font-medium text-amber-800">🔮 四年后展望（2030年）</p><p class="text-gray-700 mt-1">📈 '+t.outlook_2030+'</p><p class="text-gray-700">🏫 人才市场: '+t.saturation+'饱和</p><p class="text-gray-700">🤖 AI抵抗力: '+t.ai_resilience+'</p></div>';})()}<div class="mt-2 grid grid-cols-2 gap-2"><div id="chart-ind-${item.major_code||'x'}" style="height:120px"></div><div id="chart-city-${item.major_code||'x'}" style="height:120px"></div></div>
             </div>
           </div>` : ''}
